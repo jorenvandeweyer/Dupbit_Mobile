@@ -18,12 +18,10 @@ export default class FetchExample extends React.Component {
         this.session = new Session();
 
         this.session.on("login", () => {
-            console.log("login");
             this.setState({view: "login"});
         });
 
         this.session.on("connected", () => {
-            console.log("connected");
             this.setState({view: "home"});
         });
     }

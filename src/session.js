@@ -53,7 +53,6 @@ export default class Session extends EventEmitter {
         fetch("https://dupbit.com/api/logout", {
             method: 'POST'
         }).then(response => response.json()).then(data => {
-            console.log(data);
             this.lastString = "You succesfully logged out";
             this.emit("login");
         })
