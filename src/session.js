@@ -10,15 +10,17 @@ export default class Session extends EventEmitter {
 
     async validate() {
         const status = await getStatus();
+        this.status = status;
         if (status) {
             if (status["isLoggedIn"]) {
                 this.isLoggedIn = true;
-                this.emit("connected", status);
+                this.emit("connected");
             } else {
                 this.emit("login");
             }
         } else {
-            this.emit("login", "Servers are not available at this moment. Please try again later.");
+            this.emit("login");
+            this.lastString = "Servers are not available at this moment. Please try again later.";
         }
     }
 
@@ -36,13 +38,38 @@ export default class Session extends EventEmitter {
             }),
         }).then(response => response.json()).then(async data => {
             if (data.success) {
-                this.validate(data.token);
+                this.validate();
             } else {
-                this.emit("login", "Username or password incorrect.");
+                this.emit("login");
+                this.lastString = "Username or password incorrect.";
             }
         }).catch(e => {
-            this.emit("login", "No connection. Please check your internet connection and try again");
+            this.emit("login");
+            this.lastString = "No connection. Please check your internet connection and try again";
         });
+    }
+
+    logout() {
+        fetch("https://dupbit.com/api/logout", {
+            method: 'POST'
+        }).then(response => response.json()).then(data => {
+            console.log(data);
+            this.lastString = "You succesfully logged out";
+            this.emit("login");
+        })
+    }
+
+    get username() {
+        return this.status.username;
+    }
+    get level() {
+        return this.status.level;
+    }
+    get id() {
+        return this.status.id;
+    }
+    get reason() {
+        return this.lastString;
     }
 }
 
