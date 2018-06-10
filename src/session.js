@@ -64,6 +64,14 @@ export default class Session extends EventEmitter {
         });
     }
 
+    async fetchDevices() {
+        const status = await Request({
+            url: "https://dupbit.com/api/connect/devices",
+            method: "GET",
+        });
+        console.log(status);
+    }
+
     get username() {
         return this.status.username;
     }

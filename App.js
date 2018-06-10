@@ -23,6 +23,7 @@ export default class FetchExample extends React.Component {
 
         this.session.on("connected", () => {
             this.setState({view: "home"});
+            this.session.fetchDevices();
         });
     }
 
