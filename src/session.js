@@ -1,5 +1,6 @@
+import Request from './utils/Request';
 import EventEmitter from "./utils/EventEmitter";
-import { Platform, AsyncStorage } from 'react-native';
+import { AsyncStorage, Platform } from 'react-native';
 
 export default class Session extends EventEmitter {
     constructor() {
@@ -10,6 +11,7 @@ export default class Session extends EventEmitter {
 
     async validate() {
         const status = await getStatus();
+
         this.status = status;
         if (status) {
             if (status["isLoggedIn"]) {
@@ -19,15 +21,16 @@ export default class Session extends EventEmitter {
                 this.emit("login");
             }
         } else {
-            this.emit("login");
             this.lastString = "Servers are not available at this moment. Please try again later.";
+            this.emit("login");
         }
     }
 
-    login(username, password) {
-        fetch("https://dupbit.com/api/login", {
-            method: 'POST',
-            body: createBody({
+    async login(username, password) {
+        const status = await Request({
+            url: "https://dupbit.com/api/login",
+            method: "POST",
+            data: {
                 remote: "mobile_app",
                 username: username,
                 password: password,
@@ -35,27 +38,30 @@ export default class Session extends EventEmitter {
                 ua_overwrite: true,
                 ua_os: Platform.OS,
                 ua_name: "mobile",
-            }),
-        }).then(response => response.json()).then(async data => {
-            if (data.success) {
+            },
+        });
+
+        if (status) {
+            if (status.success) {
                 this.validate();
             } else {
-                this.emit("login");
                 this.lastString = "Username or password incorrect.";
+                this.emit("login");
             }
-        }).catch(e => {
-            this.emit("login");
+        } else {
             this.lastString = "No connection. Please check your internet connection and try again";
-        });
+            this.emit("login");
+        }
     }
 
     logout() {
-        fetch("https://dupbit.com/api/logout", {
-            method: 'POST'
-        }).then(response => response.json()).then(data => {
+        Request({
+            url: "https://dupbit.com/api/logout",
+            method: 'POST',
+        }).then(async (data) => {
             this.lastString = "You succesfully logged out";
             this.emit("login");
-        })
+        });
     }
 
     get username() {
@@ -73,15 +79,8 @@ export default class Session extends EventEmitter {
 }
 
 async function getStatus() {
-    return fetch('https://dupbit.com/api/loginStatus', {
-        method: 'GET',
-    }).then(response => response.json()).catch(e => {
-        return false;
+    return Request({
+        url: 'https://dupbit.com/api/loginStatus',
+        method: "GET",
     });
-}
-
-function createBody(data) {
-    return Object.keys(data).map(function (keyName) {
-        return encodeURIComponent(keyName) + '=' + encodeURIComponent(data[keyName])
-    }).join('&');
 }

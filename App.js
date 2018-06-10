@@ -60,13 +60,11 @@ export default class FetchExample extends React.Component {
     }
 }
 
-const banner = require('./resources/images/banner.png');
+const banner = require('./resources/images/bg.png');
 
 const styles = StyleSheet.create({
     background:{
         flex: 1,
-        resizeMode: 'repeat',
-        width: '100%', height: '100%',
         backgroundColor: '#ccc',
         justifyContent: 'center'
     },
