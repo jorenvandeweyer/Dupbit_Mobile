@@ -69,7 +69,8 @@ export default class Session extends EventEmitter {
             url: "https://dupbit.com/api/connect/devices",
             method: "GET",
         });
-        console.log(status);
+        this.devices = status.data;
+        this.emit("device-load")
     }
 
     get username() {
