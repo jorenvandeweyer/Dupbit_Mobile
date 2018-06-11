@@ -87,6 +87,7 @@ export default class DupbitMobile extends React.Component {
 
             return (
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', position: 'relative', top: 10 }}>
+                    <Button title={'< Back'} onPress={() => this.setState({view: 'devices'})}/>
                     <Text>Device: {device.info.name}</Text>
                     <Text>OS: {device.info.os}</Text>
                     <Text>{'\n'}{'\n'}Volume:</Text>
