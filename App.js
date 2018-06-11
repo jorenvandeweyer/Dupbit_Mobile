@@ -1,8 +1,8 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, Text, View, Image, StyleSheet, TextInput, Button } from 'react-native';
+import { FlatList, ActivityIndicator, Text, View, Image, StyleSheet, TextInput, Button, Alert, Slider } from 'react-native';
 import Session from "./src/session";
 
-export default class FetchExample extends React.Component {
+export default class DupbitMobile extends React.Component {
 
     constructor(props){
         super(props);
@@ -62,8 +62,10 @@ export default class FetchExample extends React.Component {
             );
         } else if(this.state.view == 'devices') {
             return (
-                <View style={styles.container}>
+                <View style={{flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start', position: 'relative', top: 20}}>
+                    <Button onPress={() => this.setState({view: 'home'})} title={'< Back'}/>
                     <FlatList
+                    style={styles.deviceSelector}
                         data={
                             Object.keys(this.session.devices.desktop_app).map(v => {
                                 return {
@@ -72,8 +74,32 @@ export default class FetchExample extends React.Component {
                                 }
                             })
                         }
-                        renderItem={({item}) => <Text>{item.data.info.name}</Text>}
+                        renderItem={
+                            ({ item }) =>
+                                
+                                item.data.online ? <Button onPress={() => this.setState({ view: 'device', deviceId: Number(item.key) })} title={item.data.info.name}></Button> : <Button color={'grey'} onPress={() => Alert.alert('All devices in grey are offline.')} title={item.data.info.name}></Button>
+                        }
                     />
+                </View>
+            );
+        } else if (this.state.view == 'device') {
+            let device = this.session.devices.desktop_app[this.state.deviceId.toString()];
+
+            return (
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', position: 'relative', top: 10 }}>
+                    <Text>Device: {device.info.name}</Text>
+                    <Text>OS: {device.info.os}</Text>
+                    <Text>{'\n'}{'\n'}Volume:</Text>
+                    <Slider
+                        minimumValue={0}
+                        maximumValue={100}
+                        step={10}
+                        onValueChange={(value) => {
+                            fetch(`https://dupbit.com/api/connect/interact?name=volume&action=set&value=${value}&tid=${device.id}`)
+                        }}
+                        style={{width: '20%'}}
+                    />
+                    <Button title={'sleep'} onPress={() => fetch(`https://dupbit.com/api/connect/interact?name=screen&action=displaysleep&tid=${device.id}`)}/>
                 </View>
             );
         }
@@ -115,5 +141,9 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 2,
         fontSize: 20
+    },
+    deviceSelector: {
+        position: 'relative',
+        top: '5%'
     }
 });
