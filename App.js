@@ -94,7 +94,7 @@ export default class DupbitMobile extends React.Component {
                     <Slider
                         minimumValue={0}
                         maximumValue={100}
-                        step={10}
+                        step={5}
                         onValueChange={(value) => {
                             fetch(`https://dupbit.com/api/connect/interact?name=volume&action=set&value=${value}&tid=${device.id}`)
                         }}
