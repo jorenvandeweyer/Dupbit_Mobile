@@ -22,8 +22,11 @@ export default class FetchExample extends React.Component {
         });
 
         this.session.on("connected", () => {
-            this.setState({view: "home"});
             this.session.fetchDevices();
+        });
+
+        this.session.on("device-load", () => {
+            this.setState({ view: "home" });
         });
     }
 
@@ -53,7 +56,24 @@ export default class FetchExample extends React.Component {
                     <Image style={styles.background} source={banner} />
                     <Text style={{ position: 'absolute', top: '10%', color: 'white', fontSize: 40 }}>Dupbit Connect</Text>
                     <Text style={{ position: 'absolute', top: '20%', color: 'white', fontSize: 30 }}>Welcome {this.session.username}!</Text>
+                    <Button title={'Devices'} onPress={() => this.setState({view: 'devices'})}/>
                     <Button title={'Logout'} onPress={() => this.session.logout()}/>
+                </View>
+            );
+        } else if(this.state.view == 'devices') {
+            return (
+                <View style={styles.container}>
+                    <FlatList
+                        data={
+                            Object.keys(this.session.devices.desktop_app).map(v => {
+                                return {
+                                    key: this.session.devices.desktop_app[v].id.toString(),
+                                    data: this.session.devices.desktop_app[v]
+                                }
+                            })
+                        }
+                        renderItem={({item}) => <Text>{item.data.info.name}</Text>}
+                    />
                 </View>
             );
         }
